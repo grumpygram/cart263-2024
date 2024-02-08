@@ -1,32 +1,27 @@
 /**
- * Title of Project
- * Author Name
+ * Voices Jam
+ * Graeme Peters
  * 
- * This is a template. You must fill in the title, author, 
- * and this description to match your project!
+ * This is a project where I will attempt to make an 
+ * uncooperative French robot that will pretend to not 
+ * understand what you are saying to it.
  */
 
 "use strict";
 
-/**
- * Description of preload
-*/
+//Preload
 function preload() {
 
 }
 
 
-/**
- * Description of setup
-*/
+//Setup
 function setup() {
 
 }
 
 
-/**
- * Description of draw()
-*/
+//Draw
 function draw() {
 
 }
