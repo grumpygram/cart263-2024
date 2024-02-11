@@ -110,19 +110,21 @@ function handleSpeechInput() {
             wordsLeftover = wordsLeftover.concat(" ",currentWords[i]);
         }
     }
-    
     talkBack();
 }
 
 function talkBack() {
-    for (let i=0; i<repeatingWords.length;i++){
-        let speechSynthesizer = new p5.Speech();
-        speechSynthesizer.speak(repeatingWords[i]);
+    if (currentWords.length>1){
+        repeatingWords.push(wordsLeftover);
     }
-    if (currentWords.length > 1){
+
+    let newRepeatingWords = shuffle(repeatingWords);
+
+    for (let i=0; i<newRepeatingWords.length;i++){
         let speechSynthesizer = new p5.Speech();
-        speechSynthesizer.speak(wordsLeftover);
+        speechSynthesizer.speak(newRepeatingWords[i]);
     }
+
     
     
 }
