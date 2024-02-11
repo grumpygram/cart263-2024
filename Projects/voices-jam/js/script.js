@@ -10,8 +10,6 @@
 "use strict";
 
 /*
-
-
 //Draw
 function draw() {   
 
@@ -29,9 +27,7 @@ function addWords() {
     fill(255);
     textAlign(CENTER, CENTER);
     text(currentWords, width/2, height/2);
-
 }
-
 */
 
 //Opening stuff
@@ -64,6 +60,7 @@ function addWords() {
     //Arrays
     let currentWords = [];
     let repeatingWords = [];
+    let wordsLeftover;
 
 
 //Setup
@@ -76,7 +73,7 @@ function setup() {
     speechRecognizer.continuous = true;
     speechRecognizer.interimResults = true;
     speechRecognizer.onEnd = handleSpeechInput;
-    speechSynthesizer.interrupt = true;
+    speechSynthesizer.interrupt = false;
 }
 
 //Draw
@@ -95,20 +92,39 @@ function handleSpeechInput() {
     //Adding spoken words to the current sentence array
     let lowerCaseResult = speechRecognizer.resultString.toLowerCase();
     let parts = lowerCaseResult.split(` `)
+    let wordsConcat;
 
-    for (let i = 0; i < currentWords.length; i++) {
+    for (let i = 0; i < parts.length; i++) {
         currentWords.push(parts[i]);
 
         if (currentWords.length === 5) {
-            repeatingWords.push(currentWords.slice());
+            wordsConcat = currentWords[0];
+            wordsConcat = currentWords[0].concat(" ",currentWords[1]," ",currentWords[2]," ",currentWords[3]," ",currentWords[4])
+            repeatingWords.push(wordsConcat);
             currentWords = [];
         }
     }
+    if (currentWords.length>1){
+        wordsLeftover = currentWords[0];
+        for (let i=1; i < currentWords.length; i++){
+            wordsLeftover = wordsLeftover.concat(" ",currentWords[i]);
+        }
+    }
+    
+    talkBack();
 }
 
 function talkBack() {
-    speechSynthesizer.speak(currentWords);
-
+    for (let i=0; i<repeatingWords.length;i++){
+        let speechSynthesizer = new p5.Speech();
+        speechSynthesizer.speak(repeatingWords[i]);
+    }
+    if (currentWords.length > 1){
+        let speechSynthesizer = new p5.Speech();
+        speechSynthesizer.speak(wordsLeftover);
+    }
+    
+    
 }
 
 //Mousepressed
@@ -136,7 +152,6 @@ function mousePressed() {
         console.log(`stopped recording`)
         button.x = random(0 + button.size/2, width - button.size/2);
         button.y = random(0 + button.size/2, height - button.size/2);
-        talkBack();
         return
     }
 }
