@@ -113,54 +113,75 @@ function draw() {
 }
 */
 
-// Copyright (c) 2020 ml5
-//
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
+///////
 
-/* ===
-ml5 Example
-BodyPix
-=== */
 
-let bodypix;
-let video;
-let segmentation;
 
-const options = {
-  outputStride: 8, // 8, 16, or 32, default is 16
-  segmentationThreshold: 0.3, // 0 - 1, defaults to 0.5
-};
+/*
 
+let img;
+
+// We will hold the totals for our color values here
+let avgRed = 0;
+let avgGreen = 0;
+let avgBlue = 0;
+
+// Load the image
 function preload() {
-  bodypix = ml5.bodyPix(options);
+    img = loadImage(`assets/images/hike.JPG`)
 }
 
 function setup() {
-  createCanvas(320, 240);
-  // load up your video
-  video = createCapture(VIDEO, videoReady);
-  video.size(width, height);
-  
-}
+  createCanvas(400, 400);
+  noStroke();
 
-function videoReady() {
-  bodypix.segment(video, gotResults);
+  // Resize the image to fit the canvas
+  img.resize(height, width);
+
+  // Load the pixels
+  img.loadPixels();
+
+  // Loop through the pixels X and Y
+  for (let y = 0; y < img.height; y++) {
+    for (let x = 0; x < img.width; x++) {
+
+      // Calculate the pixel index
+      const index = (y * img.width + x) * 4;
+
+      // Sum the red, green, and blue values
+      avgRed += img.pixels[index + 0];
+      avgGreen += img.pixels[index + 1];
+      avgBlue += img.pixels[index + 2];
+
+    }
+  }
+
+
+  // We're finished working with pixels so update them
+  img.updatePixels();
+
+  // Get the total number of pixels
+  // Divide by 4 because the total number of pixels = pixels * numColorChannels 
+  const numPixels = img.pixels.length / 4;
+
+  // divide the totals by the number of pixels to find the average.
+  avgRed /= numPixels;
+  avgGreen /= numPixels;
+  avgBlue /= numPixels;
 }
 
 function draw() {
-  background(0);
-  if (segmentation) {
-    image(segmentation.backgroundMask, 0, 0, width, height);
-    console.log(segmentation);
-  }
-}
 
-function gotResults(error, result) {
-  if (error) {
-    console.log(error);
-    return;
-  }
-  segmentation = result;
-  bodypix.segment(video, gotResults);
+  // Draw the image as the background
+  image(img, 0, 0);
+  
+  // Set the fill color to the average color of the pixels
+  fill(avgRed, avgGreen, avgBlue);
+
+  // Draw a square in the center of the screen
+  rectMode(CENTER);
+  rect(width / 2, height / 2, 100, 100);
+
+
 }
+*/
