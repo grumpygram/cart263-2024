@@ -1,156 +1,12 @@
 /**
  * Final Proposal
  * Graeme Peters
- * This is a refinement of the functioning of my AI-Jam from earlier in the semester. 
- * I want to optimize it so that it takes a photo instead of using a live video feed,
- * in the hopes that this will allow me to have better certainty that there is an 
- * object in frame
+ * This is a program that allows a person to get an honest opinion on their outfit 
+ * using one API that checks colour contrast and then to refine their outfit by 
+ * getting colour scheme recommendations from a different API
  */
 
 "use strict";
-
-/*
-let img;
-
-// We will hold the totals for our color values here
-let avgRed = 0;
-let avgGreen = 0;
-let avgBlue = 0;
-
-// Load the image
-function preload() {
-    img = loadImage(`assets/images/hike.JPG`)
-}
-
-function setup() {
-  createCanvas(400, 400);
-  noStroke();
-
-  // Resize the image to fit the canvas
-  img.resize(height, width);
-
-  // Load the pixels
-  img.loadPixels();
-
-  // Loop through the pixels X and Y
-  for (let i = 0; i < img.height; i++) {
-    for (let j = 0; j < img.width; j++) {
-
-      // Calculate the pixel index
-      const index = (i * img.width + j) * 4;
-
-      // Sum the red, green, and blue values
-      avgRed += img.pixels[index + 0];
-      avgGreen += img.pixels[index + 1];
-      avgBlue += img.pixels[index + 2];
-
-    }
-  }
-
-  // We're finished working with pixels so update them
-  img.updatePixels();
-
-  // Get the total number of pixels
-  // Divide by 4 because the total number of pixels = pixels * numColorChannels 
-  const numPixels = img.pixels.length / 4;
-
-  // divide the totals by the number of pixels to find the average.
-  avgRed /= numPixels;
-  avgGreen /= numPixels;
-  avgBlue /= numPixels;
-}
-
-function draw() {
-
-  // Draw the image as the background
-  image(img, 0, 0);
-  
-  // Set the fill color to the average color of the pixels
-  fill(avgRed, avgGreen, avgBlue);
-
-  // Draw a square in the center of the screen
-  rectMode(CENTER);
-  rect(width / 2, height / 2, 100, 100);
-
-
-}
-
-
-///////////////////////
-
-
-let img;
-let poseNet;
-
-function preload() {
-  // load an image for pose detection
-  img = loadImage('assets/images/romane.jpg');
-}
-
-function setup() {
-  createCanvas(604, 806);
-  img.resize(604,0);
-
-  image(img, 0, 0);
-
-  poseNet = ml5.poseNet(modelReady);
-}
-
-// when poseNet is ready, do the detection
-function modelReady() {
-  // If/When a pose is detected, poseNet.on('pose', ...) will be listening for the detection results 
-  poseNet.on('pose', gotPoses);
-
-  // When the model is ready, run the singlePose() function...
-  poseNet.multiPose(img);
-}
-
-function gotPoses(poses) {
-  if (poses.length > 0) {
-    drawSkeleton(poses);
-    drawKeypoints(poses);
-    console.log(poses);
-  }
-}
-
-// The following comes from https://ml5js.org/docs/posenet-webcam
-// A function to draw ellipses over the detected keypoints
-function drawKeypoints(poses) {
-  // Loop through all the poses detected
-  for (let i = 0; i < poses.length; i++) {
-    // For each pose detected, loop through all the keypoints
-    let pose = poses[i].pose;
-    for (let j = 0; j < pose.keypoints.length; j++) {
-      // A keypoint is an object describing a body part (like rightArm or leftShoulder)
-      let keypoint = pose.keypoints[j];
-      // Only draw an ellipse is the pose probability is bigger than 0.2
-      if (keypoint.score > 0.2) {
-        fill(255);
-        stroke(20);
-        strokeWeight(4);
-        ellipse(round(keypoint.position.x), round(keypoint.position.y), 8, 8);
-      }
-    }
-  }
-}
-
-// A function to draw the skeletons
-function drawSkeleton(poses) {
-  // Loop through all the skeletons detected
-  for (let i = 0; i < poses.length; i++) {
-    let skeleton = poses[i].skeleton;
-    // For every skeleton, loop through all body connections
-    for (let j = 0; j < skeleton.length; j++) {
-      let partA = skeleton[j][0];
-      let partB = skeleton[j][1];
-      stroke(255);
-      strokeWeight(1);
-      line(partA.position.x, partA.position.y, partB.position.x, partB.position.y);
-    }
-  }
-}
-*/
-
 
 //Pose stuff
 let img;
@@ -550,7 +406,7 @@ function displayColours() {
 }
 
 function getScheme() {
-  
+
 }
 
 function displayScheme() {
