@@ -172,8 +172,11 @@ let avgRedLower = 0;
 let avgGreenLower = 0;
 let avgBlueLower = 0;
 
+let topColour;
+let bottomColour;
+
 let topHex;
-let bottomHex = `7f715c`;
+let bottomHex;
 
 //Colour contrast value
 let colourContrast;
@@ -184,7 +187,7 @@ let CCformat = `&api&format=json`;
 //Colour names
 let topColourName;
 let bottomColourName;
-let CNapi = `https://www.thecolorapi.com/id?hex=`;
+let CNapi = `https://www.thecolorapi.com/id?rgb=`;
 let CNformat = `&format=json`;
 
 //Colour Schemes
@@ -192,9 +195,34 @@ let colourSchemes;
 let CSapi;
 let CSformat;
 
+//Shapes
+let displayTopColour = {
+  fill: undefined,
+  x: undefined,
+  y: undefined,
+  width: 400,
+  height: 200
+}
+let displayBottomColour = {
+  fill: undefined,
+  x: undefined,
+  y: undefined,
+  width: 400,
+  height: 200
+}
+
+//Fonts
+let lava;
+let metroLight;
+let metroMedium;
+
 //PRELOAD
 function preload() {
-  img = loadImage('assets/images/romane3.jpg');
+  img = loadImage('assets/images/graeme.jpg');
+
+  lava = loadFont(`assets/fonts/Pilowlava-Regular.otf`);
+  metroLight = loadFont(`assets/fonts/Metropolis-Light.otf`);
+  metroMedium = loadFont(`assets/fonts/Metropolis-Medium.otf`);
 }
 
 //SETUP
@@ -206,11 +234,17 @@ function setup() {
   // Loading the pixels
   img.loadPixels();
   //canvas height is set to image height post-resize
-  createCanvas(600, 900);
+  createCanvas(600, 800);
 
   //background and display image
   background (50);
   image(img, 0, 0);
+
+  //Defining variables for shapes
+  displayTopColour.x = width/2;
+  displayTopColour.y = height/2 - 150;
+  displayBottomColour.x = width/2;
+  displayBottomColour.y = height/2 + 200;
 
   //Calling Posenet
   poseNet = ml5.poseNet(img, modelLoaded);
@@ -289,7 +323,8 @@ function chestColour() {
   avgGreenUpper /= numPixelsUpper;
   avgBlueUpper /= numPixelsUpper;
 
-  console.log(round(avgRedUpper), round(avgGreenUpper), round(avgBlueUpper));
+  topColour = color(round(avgRedUpper), round(avgGreenUpper), round(avgBlueUpper));
+  displayTopColour.fill = topColour;
 }
 
 //DRAW LEGS
@@ -336,130 +371,171 @@ function legsColour() {
   avgGreenLower /= numPixelsLower;
   avgBlueLower /= numPixelsLower;
 
-  console.log(round(avgRedLower), round(avgGreenLower), round(avgBlueLower));
+  bottomColour = color(round(avgRedLower), round(avgGreenLower), round(avgBlueLower));
+  displayBottomColour.fill = bottomColour;
 
   //Buttons
   let button1 = createButton(`How's my fit?`);
-  button1.position(100, 100);
+  button1.position(width + 200, height);
   button1.mousePressed(askContrast);
 }
 
+//BUTTON PRESSED TO GET TOP NAME
 function askContrast() {
-  let CNurlTop = CNapi + `rgb=${round(avgRedUpper)},${round(avgGreenUpper)},${round(avgBlueUpper)}` + CNformat;
+  let CNurlTop = CNapi + `${round(avgRedUpper)},${round(avgGreenUpper)},${round(avgBlueUpper)}` + CNformat;
   loadJSON(CNurlTop, gotTopName);
-
-  let CNurlBottom = CNapi + `rgb=${round(avgRedLower)},${round(avgGreenLower)},${round(avgBlueLower)}` + CNformat;
-  loadJSON(CNurlBottom, gotBottomName);
-
-  let CCurl = CCapi + topHex + CCinBetween + bottomHex + CCformat;
-  loadJSON(CCurl, gotContrast);
 
 }
 
+//TOP NAME
 function gotTopName(data) {
   topColourName = data;
 
   if (topColourName) {
-    text(topColourName.name.value, width/2, height/2);
-
+    //Getting top hex name
     topHex = topColourName.hex.clean;
+
+    //Loading bottom name function
+    let CNurlBottom = CNapi + `${round(avgRedLower)},${round(avgGreenLower)},${round(avgBlueLower)}` + CNformat;
+    loadJSON(CNurlBottom, gotBottomName);
   }
 }
 
+//BOTTOM NAME
 function gotBottomName(data) {
   bottomColourName = data;
 
   if (bottomColourName) {
-    text(bottomColourName.name.value, width/2, height/2 + 100);
-
+    //Getting bottom hex name
     bottomHex = bottomColourName.hex.clean;
+
+    //Loading contrast value from both hex codes
+    let CCurl = CCapi + topHex + CCinBetween + bottomHex + CCformat;
+    loadJSON(CCurl, gotContrast);
   }
 }
 
-//GOT DATA
+//CONTRAST VALUE
 function gotContrast(data) {
   colourContrast = data;
 
   if (colourContrast) {
-    text(colourContrast.ratio, width/2, height/2 + 50);
+    displayColours();
   }
+}
 
-  /*
-  //Converting colours to Hex codes
-  let colorTop = color(avgRedUpper, avgGreenUpper, avgBlueUpper);
-  let colorBottom = color(avgRedLower, avgGreenLower, avgBlueLower);
+//DISPLAY COLOURS
+function displayColours() {
+  background(252, 252, 249);
 
-  console.log(hexTop);
+  //Title
+  push();
+  stroke(displayTopColour.fill);
+  fill(displayBottomColour.fill);
+  strokeWeight(5);
+  textFont(lava);
+  textSize(50);
+  textAlign(CENTER);
+  text(`FIT CHECKER`, width/2, 80);
+  pop();
 
-  //Drawing Top colour
+  //Drawing Top colour and name
   push();
   rectMode(CENTER);
   stroke(0);
   strokeWeight(3);
-  fill(colorTop);
-  rect(width/2, height/2 - 200, 400, 300);
+  fill(displayTopColour.fill);
+  rect(displayTopColour.x, displayTopColour.y, displayTopColour.width, displayTopColour.height);
 
   fill(avgRedLower -20, avgGreenLower -20, avgBlueLower -20);
   noStroke();
+  textFont(metroMedium);
   textSize(32);
   textAlign(CENTER);
-  //text(`#${hexTop}`, width/2, height/2 - 200);
+  text(topColourName.name.value, displayTopColour.x, displayTopColour.y - 20);
+  text(`#${topHex}`, displayTopColour.x, displayTopColour.y + 30);
   pop();
 
-  //Drawing Bottom colour
+  //Drawing Bottom colour and name
   push();
   rectMode(CENTER);
   stroke(0);
   strokeWeight(3);
-  fill(colorBottom);
-  rect(width/2, height/2 + 200, 400, 300);
+  fill(displayBottomColour.fill);
+  rect(displayBottomColour.x, displayBottomColour.y, displayBottomColour.width, displayBottomColour.height);
 
   fill(avgRedUpper -20, avgGreenUpper -20, avgBlueUpper -20);
   noStroke();
+  textFont(metroMedium);
   textSize(32);
   textAlign(CENTER);
-  //text(hexBottom, width/2, height/2 + 200);
+  text(bottomColourName.name.value, displayBottomColour.x, displayBottomColour.y - 20);
+  text(`#${bottomHex}`, displayBottomColour.x, displayBottomColour.y + 30);
   pop();
-  */
-}
 
+  //Contrast Value
+  push();
+  fill(17, 42, 70);
+  noStroke();
+  textFont(metroMedium);
+  textSize(25);
+  textAlign(CENTER);
+  text(`I rate your outfit a ${colourContrast.ratio} / 20.`, width/2, height/2);
+  pop();
 
-
-/*
-function setup() {
-  createCanvas(200, 200);
-
-  background(0);
-
-  let button = createButton(`Check it out`);
-  button.position(100, 100);
-  button.mousePressed(colourAsk);
-
-}
-
-function gotData(data) {
-  colourInfo = data;
-
-  if(colourInfo) {
+  if (colourContrast.ratio >= 0 && colourContrast.ratio < 2) {
     push();
-    //fill(colourInfo.rgb.r, colourInfo.rgb.g, colourInfo.rgb.b);
-    fill(255);
-    //ellipse(100, 100, 100, 100);
-    text(colourInfo.ratio, 100, 100);
+    fill(17, 42, 70);
+    noStroke();
+    textFont(metroLight);
+    textSize(16);
+    textAlign(CENTER);
+    rectMode(CENTER);
+    text(`Me and all your friends agree that you look bad and fashion just isn't for you... Maybe try writing?`, width/2, height/2 + 25, 350);
     pop();
-
   }
 
+  if (colourContrast.ratio >= 2 && colourContrast.ratio < 4) {
+    push();
+    fill(17, 42, 70);
+    noStroke();
+    textFont(metroLight);
+    textSize(16);
+    textAlign(CENTER);
+    rectMode(CENTER);
+    text(`Hmmm... This is a pretty ugly outfit but I doubt people will laugh at you, at least to your face.`, width/2, height/2 + 25, 350);
+    pop();
+  }
 
+  if (colourContrast.ratio >= 4 && colourContrast.ratio < 6) {
+    push();
+    fill(17, 42, 70);
+    noStroke();
+    textFont(metroLight);
+    textSize(16);
+    textAlign(CENTER);
+    rectMode(CENTER);
+    text(`I respect the effort, even if you look incredibly mid. This isn't the worst outfit that I've seen.`, width/2, height/2 + 25, 350);
+    pop();
+  }
+
+  if (colourContrast.ratio >= 6 && colourContrast.ratio <= 21) {
+    push();
+    fill(17, 42, 70);
+    noStroke();
+    textFont(metroLight);
+    textSize(16);
+    textAlign(CENTER);
+    rectMode(CENTER);
+    text(`You look like a pretty swaggy person that I'd like to chill with. Want to go thrifting later?`, width/2, height/2 + 25, 350);
+    pop();
+  }
+
+  push();
+  fill(17, 42, 70);
+  noStroke();
+  textFont(metroLight);
+  textSize(12);
+  text(`background: #fcf9f3`, 10, height - 10);
+  pop();
 }
-
-function colourAsk() {
-  let url = api + hex1 + inBetween + hex2 + format;
-
-  loadJSON(url, gotData);
-
-}
-
-//494643
-//7f715c
-*/
