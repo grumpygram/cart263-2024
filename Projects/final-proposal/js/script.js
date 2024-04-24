@@ -248,6 +248,16 @@ function setup() {
 
   //Calling Posenet
   poseNet = ml5.poseNet(img, modelLoaded);
+
+  //Buttons
+  let button1 = createButton(`How's my fit?`);
+  button1.position(width - 300, 80);
+  button1.mousePressed(displayColours);
+
+  let button2 = createButton(`Help me dress better`);
+  button2.position(width - 300, 120);
+  button2.mousePressed(displayScheme);
+
 }
 
 //MODEL LOADED
@@ -374,17 +384,14 @@ function legsColour() {
   bottomColour = color(round(avgRedLower), round(avgGreenLower), round(avgBlueLower));
   displayBottomColour.fill = bottomColour;
 
-  //Buttons
-  let button1 = createButton(`How's my fit?`);
-  button1.position(width + 200, height);
-  button1.mousePressed(askContrast);
+  //Running Ask Quality
+  askQuality();
 }
 
 //BUTTON PRESSED TO GET TOP NAME
-function askContrast() {
+function askQuality() {
   let CNurlTop = CNapi + `${round(avgRedUpper)},${round(avgGreenUpper)},${round(avgBlueUpper)}` + CNformat;
   loadJSON(CNurlTop, gotTopName);
-
 }
 
 //TOP NAME
@@ -420,122 +427,133 @@ function gotContrast(data) {
   colourContrast = data;
 
   if (colourContrast) {
-    displayColours();
+    console.log(`hello`);
   }
 }
 
 //DISPLAY COLOURS
 function displayColours() {
-  background(252, 252, 249);
+  if (colourContrast) {
+    background(252, 252, 249);
 
-  //Title
-  push();
-  stroke(displayTopColour.fill);
-  fill(displayBottomColour.fill);
-  strokeWeight(5);
-  textFont(lava);
-  textSize(50);
-  textAlign(CENTER);
-  text(`FIT CHECKER`, width/2, 80);
-  pop();
+    //Title
+    push();
+    stroke(displayTopColour.fill);
+    fill(displayBottomColour.fill);
+    strokeWeight(5);
+    textFont(lava);
+    textSize(50);
+    textAlign(CENTER);
+    text(`FIT CHECKER`, width/2, 80);
+    pop();
 
-  //Drawing Top colour and name
-  push();
-  rectMode(CENTER);
-  stroke(0);
-  strokeWeight(3);
-  fill(displayTopColour.fill);
-  rect(displayTopColour.x, displayTopColour.y, displayTopColour.width, displayTopColour.height);
+    //Drawing Top colour and name
+    push();
+    rectMode(CENTER);
+    stroke(0);
+    strokeWeight(3);
+    fill(displayTopColour.fill);
+    rect(displayTopColour.x, displayTopColour.y, displayTopColour.width, displayTopColour.height);
 
-  fill(avgRedLower -20, avgGreenLower -20, avgBlueLower -20);
-  noStroke();
-  textFont(metroMedium);
-  textSize(32);
-  textAlign(CENTER);
-  text(topColourName.name.value, displayTopColour.x, displayTopColour.y - 20);
-  text(`#${topHex}`, displayTopColour.x, displayTopColour.y + 30);
-  pop();
+    fill(avgRedLower -20, avgGreenLower -20, avgBlueLower -20);
+    noStroke();
+    textFont(metroMedium);
+    textSize(32);
+    textAlign(CENTER);
+    text(topColourName.name.value, displayTopColour.x, displayTopColour.y - 20);
+    text(`#${topHex}`, displayTopColour.x, displayTopColour.y + 30);
+    pop();
 
-  //Drawing Bottom colour and name
-  push();
-  rectMode(CENTER);
-  stroke(0);
-  strokeWeight(3);
-  fill(displayBottomColour.fill);
-  rect(displayBottomColour.x, displayBottomColour.y, displayBottomColour.width, displayBottomColour.height);
+    //Drawing Bottom colour and name
+    push();
+    rectMode(CENTER);
+    stroke(0);
+    strokeWeight(3);
+    fill(displayBottomColour.fill);
+    rect(displayBottomColour.x, displayBottomColour.y, displayBottomColour.width, displayBottomColour.height);
 
-  fill(avgRedUpper -20, avgGreenUpper -20, avgBlueUpper -20);
-  noStroke();
-  textFont(metroMedium);
-  textSize(32);
-  textAlign(CENTER);
-  text(bottomColourName.name.value, displayBottomColour.x, displayBottomColour.y - 20);
-  text(`#${bottomHex}`, displayBottomColour.x, displayBottomColour.y + 30);
-  pop();
+    fill(avgRedUpper -20, avgGreenUpper -20, avgBlueUpper -20);
+    noStroke();
+    textFont(metroMedium);
+    textSize(32);
+    textAlign(CENTER);
+    text(bottomColourName.name.value, displayBottomColour.x, displayBottomColour.y - 20);
+    text(`#${bottomHex}`, displayBottomColour.x, displayBottomColour.y + 30);
+    pop();
 
-  //Contrast Value
-  push();
-  fill(17, 42, 70);
-  noStroke();
-  textFont(metroMedium);
-  textSize(25);
-  textAlign(CENTER);
-  text(`I rate your outfit a ${colourContrast.ratio} / 20.`, width/2, height/2);
-  pop();
+    //Contrast Value
+    push();
+    fill(17, 42, 70);
+    noStroke();
+    textFont(metroMedium);
+    textSize(25);
+    textAlign(CENTER);
+    text(`I rate your outfit a ${colourContrast.ratio} / 10`, width/2, height/2);
+    pop();
 
-  if (colourContrast.ratio >= 0 && colourContrast.ratio < 2) {
+    if (colourContrast.ratio >= 0 && colourContrast.ratio < 2) {
+      push();
+      fill(17, 42, 70);
+      noStroke();
+      textFont(metroLight);
+      textSize(16);
+      textAlign(CENTER);
+      rectMode(CENTER);
+      text(`Me and all your friends agree that you look bad and fashion just isn't for you... Maybe try writing?`, width/2, height/2 + 25, 350);
+      pop();
+    }
+
+    if (colourContrast.ratio >= 2 && colourContrast.ratio < 4) {
+      push();
+      fill(17, 42, 70);
+      noStroke();
+      textFont(metroLight);
+      textSize(16);
+      textAlign(CENTER);
+      rectMode(CENTER);
+      text(`Hmmm... This is a pretty ugly outfit but I doubt people will laugh at you, at least to your face.`, width/2, height/2 + 25, 350);
+      pop();
+    }
+
+    if (colourContrast.ratio >= 4 && colourContrast.ratio < 6) {
+      push();
+      fill(17, 42, 70);
+      noStroke();
+      textFont(metroLight);
+      textSize(16);
+      textAlign(CENTER);
+      rectMode(CENTER);
+      text(`I respect the effort, even if you look incredibly mid. This isn't the worst outfit that I've seen.`, width/2, height/2 + 25, 350);
+      pop();
+    }
+
+    if (colourContrast.ratio >= 6 && colourContrast.ratio <= 21) {
+      push();
+      fill(17, 42, 70);
+      noStroke();
+      textFont(metroLight);
+      textSize(16);
+      textAlign(CENTER);
+      rectMode(CENTER);
+      text(`You look like a pretty swaggy person that I'd like to chill with. Want to go thrifting later?`, width/2, height/2 + 25, 350);
+      pop();
+    }
+
     push();
     fill(17, 42, 70);
     noStroke();
     textFont(metroLight);
-    textSize(16);
-    textAlign(CENTER);
-    rectMode(CENTER);
-    text(`Me and all your friends agree that you look bad and fashion just isn't for you... Maybe try writing?`, width/2, height/2 + 25, 350);
+    textSize(12);
+    text(`background: #fcf9f3`, 10, height - 10);
     pop();
   }
+}
 
-  if (colourContrast.ratio >= 2 && colourContrast.ratio < 4) {
-    push();
-    fill(17, 42, 70);
-    noStroke();
-    textFont(metroLight);
-    textSize(16);
-    textAlign(CENTER);
-    rectMode(CENTER);
-    text(`Hmmm... This is a pretty ugly outfit but I doubt people will laugh at you, at least to your face.`, width/2, height/2 + 25, 350);
-    pop();
-  }
+function getScheme() {
+  
+}
 
-  if (colourContrast.ratio >= 4 && colourContrast.ratio < 6) {
-    push();
-    fill(17, 42, 70);
-    noStroke();
-    textFont(metroLight);
-    textSize(16);
-    textAlign(CENTER);
-    rectMode(CENTER);
-    text(`I respect the effort, even if you look incredibly mid. This isn't the worst outfit that I've seen.`, width/2, height/2 + 25, 350);
-    pop();
-  }
-
-  if (colourContrast.ratio >= 6 && colourContrast.ratio <= 21) {
-    push();
-    fill(17, 42, 70);
-    noStroke();
-    textFont(metroLight);
-    textSize(16);
-    textAlign(CENTER);
-    rectMode(CENTER);
-    text(`You look like a pretty swaggy person that I'd like to chill with. Want to go thrifting later?`, width/2, height/2 + 25, 350);
-    pop();
-  }
-
-  push();
-  fill(17, 42, 70);
-  noStroke();
-  textFont(metroLight);
-  textSize(12);
-  text(`background: #fcf9f3`, 10, height - 10);
-  pop();
+function displayScheme() {
+  getScheme();
+  
 }
