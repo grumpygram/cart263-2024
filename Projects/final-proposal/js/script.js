@@ -151,6 +151,7 @@ function drawSkeleton(poses) {
 }
 */
 
+
 //Pose stuff
 let img;
 let poseNet;
@@ -171,9 +172,29 @@ let avgRedLower = 0;
 let avgGreenLower = 0;
 let avgBlueLower = 0;
 
+let topHex;
+let bottomHex = `7f715c`;
+
+//Colour contrast value
+let colourContrast;
+let CCapi = `https://webaim.org/resources/contrastchecker/?fcolor=`;
+let CCinBetween = `&bcolor=`;
+let CCformat = `&api&format=json`;
+
+//Colour names
+let topColourName;
+let bottomColourName;
+let CNapi = `https://www.thecolorapi.com/id?hex=`;
+let CNformat = `&format=json`;
+
+//Colour Schemes
+let colourSchemes;
+let CSapi;
+let CSformat;
+
 //PRELOAD
 function preload() {
-  img = loadImage('assets/images/graeme2.jpg');
+  img = loadImage('assets/images/romane3.jpg');
 }
 
 //SETUP
@@ -185,7 +206,7 @@ function setup() {
   // Loading the pixels
   img.loadPixels();
   //canvas height is set to image height post-resize
-  createCanvas(600, img.height);
+  createCanvas(600, 900);
 
   //background and display image
   background (50);
@@ -225,12 +246,17 @@ function drawChest(poses) {
     quad(poses[0].pose.rightShoulder.x, poses[0].pose.rightShoulder.y, poses[0].pose.leftShoulder.x, poses[0].pose.leftShoulder.y, poses[0].pose.leftHip.x, poses[0].pose.leftHip.y, poses[0].pose.rightHip.x, poses[0].pose.rightHip.y);
   }
 
-  //Making arrays for x and y of the upper body rectangle points
+  //Making arrays for x and y of the upper body rectangle points. Chest box is proportionately shorter to exclude the waist area, that was messing with accuracy
   upperX[0] = round(poses[0].pose.rightHip.x);
   upperX[1] = round(poses[0].pose.leftHip.x);
   upperY[0] = round(poses[0].pose.leftShoulder.y);
   upperY[1] = round(poses[0].pose.leftHip.y-(upperX[1]-upperX[0]));
 
+  chestColour();  
+}
+
+//CHEST COLOUR
+function chestColour() {
   //Indexes for top left and bottom right pixels in chest area for the pixels array
   let pixelIdx1 = (upperX[0] + upperY[0] * width) * 4;
   let pixelIdx2 = (upperX[1] + upperY[1] * width) * 4;
@@ -263,10 +289,7 @@ function drawChest(poses) {
   avgGreenUpper /= numPixelsUpper;
   avgBlueUpper /= numPixelsUpper;
 
-  fill(avgRedUpper, avgGreenUpper, avgBlueUpper);
-  // Draw a square in the center of the screen
-  rectMode(CENTER);
-  rect(width / 2, height / 2, 100, 100);
+  console.log(round(avgRedUpper), round(avgGreenUpper), round(avgBlueUpper));
 }
 
 //DRAW LEGS
@@ -280,6 +303,10 @@ function drawLegs(poses) {
     ellipse(poses[0].pose.leftKnee.x, poses[0].pose.leftKnee.y, 10);
   }
 
+  legsColour();
+}
+
+function legsColour() {
   //Making arrays for x and y of the lower body rectangle points
   lowerX[0] = round(poses[0].pose.rightHip.x);
   lowerY[0] = round(poses[0].pose.rightHip.y);
@@ -309,18 +336,130 @@ function drawLegs(poses) {
   avgGreenLower /= numPixelsLower;
   avgBlueLower /= numPixelsLower;
 
+  console.log(round(avgRedLower), round(avgGreenLower), round(avgBlueLower));
 
-  console.log(avgBlueLower)
-  console.log(numPixelsLower);
+  //Buttons
+  let button1 = createButton(`How's my fit?`);
+  button1.position(100, 100);
+  button1.mousePressed(askContrast);
+}
 
-  fill(avgRedLower, avgGreenLower, avgBlueLower);
-  // Draw a square in the center of the screen
+function askContrast() {
+  let CNurlTop = CNapi + `rgb=${round(avgRedUpper)},${round(avgGreenUpper)},${round(avgBlueUpper)}` + CNformat;
+  loadJSON(CNurlTop, gotTopName);
+
+  let CNurlBottom = CNapi + `rgb=${round(avgRedLower)},${round(avgGreenLower)},${round(avgBlueLower)}` + CNformat;
+  loadJSON(CNurlBottom, gotBottomName);
+
+  let CCurl = CCapi + topHex + CCinBetween + bottomHex + CCformat;
+  loadJSON(CCurl, gotContrast);
+
+}
+
+function gotTopName(data) {
+  topColourName = data;
+
+  if (topColourName) {
+    text(topColourName.name.value, width/2, height/2);
+
+    topHex = topColourName.hex.clean;
+  }
+}
+
+function gotBottomName(data) {
+  bottomColourName = data;
+
+  if (bottomColourName) {
+    text(bottomColourName.name.value, width/2, height/2 + 100);
+
+    bottomHex = bottomColourName.hex.clean;
+  }
+}
+
+//GOT DATA
+function gotContrast(data) {
+  colourContrast = data;
+
+  if (colourContrast) {
+    text(colourContrast.ratio, width/2, height/2 + 50);
+  }
+
+  /*
+  //Converting colours to Hex codes
+  let colorTop = color(avgRedUpper, avgGreenUpper, avgBlueUpper);
+  let colorBottom = color(avgRedLower, avgGreenLower, avgBlueLower);
+
+  console.log(hexTop);
+
+  //Drawing Top colour
+  push();
   rectMode(CENTER);
-  rect(250, 250, 100, 100);
+  stroke(0);
+  strokeWeight(3);
+  fill(colorTop);
+  rect(width/2, height/2 - 200, 400, 300);
+
+  fill(avgRedLower -20, avgGreenLower -20, avgBlueLower -20);
+  noStroke();
+  textSize(32);
+  textAlign(CENTER);
+  //text(`#${hexTop}`, width/2, height/2 - 200);
+  pop();
+
+  //Drawing Bottom colour
+  push();
+  rectMode(CENTER);
+  stroke(0);
+  strokeWeight(3);
+  fill(colorBottom);
+  rect(width/2, height/2 + 200, 400, 300);
+
+  fill(avgRedUpper -20, avgGreenUpper -20, avgBlueUpper -20);
+  noStroke();
+  textSize(32);
+  textAlign(CENTER);
+  //text(hexBottom, width/2, height/2 + 200);
+  pop();
+  */
+}
+
+
+
+/*
+function setup() {
+  createCanvas(200, 200);
+
+  background(0);
+
+  let button = createButton(`Check it out`);
+  button.position(100, 100);
+  button.mousePressed(colourAsk);
 
 }
 
-//DRAW
-function draw() {
+function gotData(data) {
+  colourInfo = data;
+
+  if(colourInfo) {
+    push();
+    //fill(colourInfo.rgb.r, colourInfo.rgb.g, colourInfo.rgb.b);
+    fill(255);
+    //ellipse(100, 100, 100, 100);
+    text(colourInfo.ratio, 100, 100);
+    pop();
+
+  }
+
 
 }
+
+function colourAsk() {
+  let url = api + hex1 + inBetween + hex2 + format;
+
+  loadJSON(url, gotData);
+
+}
+
+//494643
+//7f715c
+*/
