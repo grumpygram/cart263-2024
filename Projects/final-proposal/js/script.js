@@ -1,9 +1,10 @@
 /**
- * Final Proposal
+ * Final Assignment
  * Graeme Peters
  * This is a program that allows a person to get an honest opinion on their outfit 
  * using one API that checks colour contrast and then to refine their outfit by 
- * getting colour scheme recommendations from a different API
+ * getting colour scheme recommendations from a different API. You'll have to 
+ * upload your own image to the assets folder if you want to be judged
  */
 
 "use strict";
@@ -47,9 +48,9 @@ let CNapi = `https://www.thecolorapi.com/id?rgb=`;
 let CNformat = `&format=json`;
 
 //Colour Schemes
-let colourSchemes;
-let CSapi;
-let CSformat;
+let colourScheme;
+let CSapi = `https://www.thecolorapi.com/scheme?hex=`;
+let CSformat = `&format=json&mode=triad&count=3`;
 
 //Shapes
 let displayTopColour = {
@@ -89,7 +90,7 @@ function setup() {
   img.resize(600, 0);
   // Loading the pixels
   img.loadPixels();
-  //canvas height is set to image height post-resize
+
   createCanvas(600, 800);
 
   //background and display image
@@ -107,13 +108,23 @@ function setup() {
 
   //Buttons
   let button1 = createButton(`How's my fit?`);
-  button1.position(width - 300, 80);
+  button1.position(30, 80);
   button1.mousePressed(displayColours);
 
   let button2 = createButton(`Help me dress better`);
-  button2.position(width - 300, 120);
-  button2.mousePressed(displayScheme);
+  button2.position(30, 120);
+  button2.mousePressed(getScheme);
 
+  //Title
+  push();
+  stroke(0);
+  fill(255);
+  strokeWeight(5);
+  textFont(lava);
+  textSize(50);
+  textAlign(CENTER);
+  text(`FIT CHECKER`, width/2, 80);
+  pop();
 }
 
 //MODEL LOADED
@@ -405,11 +416,102 @@ function displayColours() {
   }
 }
 
+//GET SCHEME
 function getScheme() {
+  let CSurl = CSapi + topHex + CSformat;
 
+  console.log(CSurl);
+
+  loadJSON(CSurl, displayScheme)
 }
 
-function displayScheme() {
-  getScheme();
-  
+//DISPLAY SCHEME
+function displayScheme(data) {
+  colourScheme = data;
+
+  if(colourScheme) {
+    background(252, 252, 249);
+
+    //Title
+    push();
+    stroke(displayTopColour.fill);
+    fill(displayBottomColour.fill);
+    strokeWeight(5);
+    textFont(lava);
+    textSize(50);
+    textAlign(CENTER);
+    text(`FIT CHECKER`, width/2, 80);
+    pop();
+
+    //Drawing Top colour and name
+    push();
+    rectMode(CENTER);
+    stroke(0);
+    strokeWeight(3);
+    fill(displayTopColour.fill);
+    rect(displayTopColour.x, displayTopColour.y, displayTopColour.width, displayTopColour.height);
+
+    fill(avgRedLower -20, avgGreenLower -20, avgBlueLower -20);
+    noStroke();
+    textFont(metroMedium);
+    textSize(32);
+    textAlign(CENTER);
+    text(topColourName.name.value, displayTopColour.x, displayTopColour.y - 20);
+    text(`#${topHex}`, displayTopColour.x, displayTopColour.y + 30);
+    pop();
+
+    console.log(displayTopColour.fill);
+    console.log(colourScheme["colors"][0].name.value);
+    console.log(colourScheme["colors"][1].name.value);
+
+    //Drawing and naming Scheme square 1
+    push();
+    rectMode(CENTER);
+    stroke(0);
+    strokeWeight(3);
+    fill(colourScheme["colors"][0].rgb.r, colourScheme["colors"][0].rgb.g, colourScheme["colors"][0].rgb.b);
+    rect(width/2, 550, displayTopColour.width, 120);
+    pop();
+
+    push();
+    fill(colourScheme["colors"][0].rgb.r - 60, colourScheme["colors"][0].rgb.g - 60, colourScheme["colors"][0].rgb.b - 60);
+    noStroke();
+    textFont(metroMedium);
+    textSize(28);
+    textAlign(CENTER);
+    text(colourScheme["colors"][0].name.value, width/2, 550 - 10);
+    text(colourScheme["colors"][0].hex.value, width/2, 550 + 30);
+    pop();
+
+    //Drawing and naming Scheme square 2
+    push();
+    rectMode(CENTER);
+    stroke(0);
+    strokeWeight(3);
+    fill(colourScheme["colors"][1].rgb.r, colourScheme["colors"][1].rgb.g, colourScheme["colors"][1].rgb.b);
+    rect(width/2, 700, displayTopColour.width, 120);
+    pop();
+
+    push();
+    fill(colourScheme["colors"][1].rgb.r - 60, colourScheme["colors"][1].rgb.g - 60, colourScheme["colors"][1].rgb.b - 60);
+    noStroke();
+    textFont(metroMedium);
+    textSize(28);
+    textAlign(CENTER);
+    text(colourScheme["colors"][1].name.value, width/2, 700 - 10);
+    text(colourScheme["colors"][1].hex.value, width/2, 700 + 30);
+    pop();
+
+    //Message from the computer
+    push();
+    fill(17, 42, 70);
+    noStroke();
+    textFont(metroLight);
+    textSize(16);
+    textAlign(CENTER);
+    rectMode(CENTER);
+    text(`Hey, need some help figuring out how to dress? If you want to make friends and influence people, try out these colours to go with that top.`, width/2, height/2, 350);
+    pop();
+
+  }
 }
